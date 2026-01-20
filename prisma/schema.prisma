@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Core Pabuk.ai models
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(CONTRIBUTOR)
+  provinceId    String?
+  bio           String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  province      Province?      @relation(fields: [provinceId], references: [id])
+  contributions Contribution[]
+  reviews       Review[]
+}
+
+model Province {
+  id            String   @id @default(cuid())
+  nameEn        String   @unique
+  nameTh        String
+  region        Region
+  description   String?
+  imageUrl      String?
+  latitude      Float?
+  longitude     Float?
+  createdAt     DateTime @default(now())
+
+  users         User[]
+  contributions Contribution[]
+}
+
+model Contribution {
+  id          String     @id @default(cuid())
+  type        DataType
+  title       String
+  titleTh     String?
+  content     String?    @db.Text
+  fileUrl     String?
+  category    Category
+  dialect     String?
+  metadata    Json?
+  status      Status     @default(PENDING)
+  viewCount   Int        @default(0)
+  downloadCount Int      @default(0)
+  
+  provinceId  String
+  userId      String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  province    Province   @relation(fields: [provinceId], references: [id])
+  user        User       @relation(fields: [userId], references: [id])
+  reviews     Review[]
+  tags        Tag[]      @relation("ContributionTags")
+
+  @@index([provinceId])
+  @@index([status])
+  @@index([type])
+}
+
+model Review {
+  id             String   @id @default(cuid())
+  contributionId String
+  reviewerId     String
+  status         Status
+  feedback       String?  @db.Text
+  createdAt      DateTime @default(now())
+
+  contribution   Contribution @relation(fields: [contributionId], references: [id], onDelete: Cascade)
+  reviewer       User         @relation(fields: [reviewerId], references: [id])
+}
+
+model Tag {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  nameTh        String?
+  contributions Contribution[] @relation("ContributionTags")
+}
+
+enum Role {
+  CONTRIBUTOR
+  REVIEWER
+  ADMIN
+}
+
+enum DataType {
+  TEXT
+  AUDIO
+  IMAGE
+  SYNTHETIC
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum Region {
+  NORTH
+  NORTHEAST
+  CENTRAL
+  EAST
+  WEST
+  SOUTH
+}
+
+enum Category {
+  FOLKTALE
+  PROVERB
+  HISTORY
+  DIALECT
+  FOLK_SONG
+  FESTIVAL_SOUND
+  LANDMARK
+  LANDSCAPE
+  CULTURAL_OBJECT
+  FOOD
+  OTHER
+}
