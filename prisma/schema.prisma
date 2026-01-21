@@ -56,11 +56,29 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  province      Province?      @relation(fields: [provinceId], references: [id])
-  contributions Contribution[]
-  reviews       Review[]
+  // Point system fields
+  points                Int      @default(0)
+  level                 String   @default("Bronze")
+  referralCode          String?  @unique
+  referredBy            String?
+  streak                Int      @default(0)
+  lastContributionAt    DateTime?
+  totalContributions    Int      @default(0)
+  approvedContributions Int      @default(0)
+  provincesCovered      Int      @default(0)
+  averageQualityRating  Float    @default(0)
+
+  accounts          Account[]
+  sessions          Session[]
+  province          Province?          @relation(fields: [provinceId], references: [id])
+  contributions     Contribution[]
+  reviews           Review[]
+  pointTransactions PointTransaction[]
+  achievements      Achievement[]
+  givenRatings      QualityReview[]    @relation("ReviewerRatings")
+
+  @@index([points(sort: Desc)])
+  @@index([level])
 }
 
 model Province {
@@ -76,35 +94,48 @@ model Province {
 
   users         User[]
   contributions Contribution[]
+  stats         ProvinceStats?
 }
 
 model Contribution {
-  id          String     @id @default(cuid())
-  type        DataType
-  title       String
-  titleTh     String?
-  content     String?    @db.Text
-  fileUrl     String?
-  category    Category
-  dialect     String?
-  metadata    Json?
-  status      Status     @default(PENDING)
-  viewCount   Int        @default(0)
-  downloadCount Int      @default(0)
+  id            String     @id @default(cuid())
+  type          DataType
+  title         String
+  titleTh       String?
+  content       String?    @db.Text
+  fileUrl       String?
+  category      Category
+  dialect       String?
+  metadata      Json?
+  status        Status     @default(PENDING)
+  viewCount     Int        @default(0)
+  downloadCount Int        @default(0)
   
-  provinceId  String
-  userId      String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  // Point system fields
+  pointsAwarded Int        @default(0)
+  qualityRating Int?       // 1-5 stars (average)
+  isFeatured    Boolean    @default(false)
+  featuredAt    DateTime?
+  calculatedAt  DateTime?
+  
+  provinceId    String
+  userId        String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 
-  province    Province   @relation(fields: [provinceId], references: [id])
-  user        User       @relation(fields: [userId], references: [id])
-  reviews     Review[]
-  tags        Tag[]      @relation("ContributionTags")
+  province          Province           @relation(fields: [provinceId], references: [id])
+  user              User               @relation(fields: [userId], references: [id])
+  reviews           Review[]
+  tags              Tag[]              @relation("ContributionTags")
+  qualityRatings    QualityReview[]
+  pointTransactions PointTransaction[]
 
   @@index([provinceId])
   @@index([status])
   @@index([type])
+  @@index([pointsAwarded(sort: Desc)])
+  @@index([qualityRating])
+  @@index([isFeatured])
 }
 
 model Review {
@@ -126,6 +157,108 @@ model Tag {
   contributions Contribution[] @relation("ContributionTags")
 }
 
+// ============================================
+// POINT SYSTEM MODELS
+// ============================================
+
+model PointTransaction {
+  id             String          @id @default(cuid())
+  userId         String
+  type           TransactionType
+  amount         Int
+  reason         String          @db.Text
+  contributionId String?
+  metadata       Json?
+  createdAt      DateTime        @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contribution Contribution? @relation(fields: [contributionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+model Achievement {
+  id          String    @id @default(cuid())
+  userId      String
+  badgeName   String
+  badgeType   BadgeType
+  badgeIcon   String?
+  description String?
+  metadata    Json?
+  earnedAt    DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeName])
+  @@index([userId])
+  @@index([badgeType])
+}
+
+model QualityReview {
+  id             String   @id @default(cuid())
+  contributionId String
+  reviewerId     String
+  rating         Int      // 1-5 stars
+  feedback       String?  @db.Text
+  createdAt      DateTime @default(now())
+
+  contribution Contribution @relation(fields: [contributionId], references: [id], onDelete: Cascade)
+  reviewer     User         @relation("ReviewerRatings", fields: [reviewerId], references: [id])
+
+  @@unique([contributionId, reviewerId])
+  @@index([contributionId])
+  @@index([reviewerId])
+  @@index([rating])
+}
+
+model ProvinceStats {
+  id                 String   @id @default(cuid())
+  provinceId         String   @unique
+  contributionCount  Int      @default(0)
+  contributorCount   Int      @default(0)
+  totalPoints        Int      @default(0)
+  isUnderrepresented Boolean  @default(false)
+  lastUpdatedAt      DateTime @default(now())
+
+  province Province @relation(fields: [provinceId], references: [id], onDelete: Cascade)
+
+  @@index([isUnderrepresented])
+  @@index([contributionCount])
+}
+
+model StreakHistory {
+  id          String     @id @default(cuid())
+  userId      String
+  streakType  StreakType
+  startDate   DateTime
+  endDate     DateTime?
+  length      Int        // Days
+  bonusAwarded Int       @default(0)
+  createdAt   DateTime   @default(now())
+
+  @@index([userId])
+  @@index([streakType])
+  @@index([userId, streakType])
+}
+
+model LeaderboardSnapshot {
+  id         String              @id @default(cuid())
+  category   LeaderboardCategory
+  period     String              // "2026-01", "week-3", etc.
+  rankings   Json                // Array of {userId, rank, score, name}
+  snapshotAt DateTime            @default(now())
+
+  @@unique([category, period])
+  @@index([category, period])
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
 enum Role {
   CONTRIBUTOR
   REVIEWER
@@ -143,6 +276,7 @@ enum Status {
   PENDING
   APPROVED
   REJECTED
+  FEATURED
 }
 
 enum Region {
@@ -166,4 +300,56 @@ enum Category {
   CULTURAL_OBJECT
   FOOD
   OTHER
+}
+
+enum TransactionType {
+  CONTRIBUTION_TEXT
+  CONTRIBUTION_AUDIO
+  CONTRIBUTION_IMAGE
+  CONTRIBUTION_SYNTHETIC
+  QUALITY_MULTIPLIER
+  FEATURED_BONUS
+  PROVINCE_FIRST
+  PROVINCE_UNDERREPRESENTED
+  MILESTONE_BRONZE
+  MILESTONE_SILVER
+  MILESTONE_GOLD
+  MILESTONE_PLATINUM
+  MILESTONE_DIAMOND
+  MILESTONE_LEGEND
+  STREAK_DAILY
+  STREAK_WEEKLY
+  STREAK_MONTHLY
+  STREAK_YEARLY
+  REVIEW_ACTIVITY
+  REFERRAL_SIGNUP
+  REFERRAL_FIRST_CONTRIBUTION
+  PENALTY_SPAM
+  PENALTY_DUPLICATE
+  PENALTY_LOW_QUALITY
+  ADMIN_ADJUSTMENT
+}
+
+enum BadgeType {
+  MILESTONE
+  STREAK
+  GEOGRAPHIC
+  QUALITY
+  SPECIAL
+}
+
+enum StreakType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum LeaderboardCategory {
+  TOTAL_POINTS
+  QUALITY_AVERAGE
+  GEOGRAPHIC_COVERAGE
+  CONTRIBUTION_COUNT
+  REVIEWER_ACTIVITY
+  RISING_STAR
 }
