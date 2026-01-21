@@ -1,10 +1,10 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function SignInPage() {
+function SignInContent() {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const searchParams = useSearchParams();
@@ -129,3 +129,20 @@ export default function SignInPage() {
         </div>
     );
 }
+
+function SignInLoading() {
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
+            <div className="text-white text-xl">กำลังโหลด...</div>
+        </div>
+    );
+}
+
+export default function SignInPage() {
+    return (
+        <Suspense fallback={<SignInLoading />}>
+            <SignInContent />
+        </Suspense>
+    );
+}
+
