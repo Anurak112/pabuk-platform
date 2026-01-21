@@ -8,6 +8,8 @@ export async function POST(req: NextRequest) {
         // Lazy load prisma and auth to avoid build-time database connections
         const { auth } = await import("@/lib/auth");
         const prisma = (await import("@/lib/prisma")).default;
+        const { PointTransactionService } = await import("@/lib/services/point-transaction.service");
+        const { PointCalculator } = await import("@/lib/services/point-calculator");
 
         const session = await auth();
 
@@ -28,7 +30,10 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Create contribution
+        // Calculate estimated points for pending status
+        const estimatedPoints = PointCalculator.calculatePending(type, category);
+
+        // Create contribution with initial points
         const contribution = await prisma.contribution.create({
             data: {
                 type,
@@ -40,11 +45,28 @@ export async function POST(req: NextRequest) {
                 dialect,
                 status: "PENDING",
                 userId: session.user.id,
+                pointsAwarded: estimatedPoints,
+                calculatedAt: new Date(),
+            },
+        });
+
+        // Award provisional points for pending contribution
+        await PointTransactionService.awardContributionPoints(contribution, {});
+
+        // Update user's total contributions count
+        await prisma.user.update({
+            where: { id: session.user.id },
+            data: {
+                totalContributions: { increment: 1 },
             },
         });
 
         return NextResponse.json(
-            { message: "ส่งข้อมูลสำเร็จ รอการตรวจสอบ", id: contribution.id },
+            {
+                message: "ส่งข้อมูลสำเร็จ รอการตรวจสอบ",
+                id: contribution.id,
+                estimatedPoints,
+            },
             { status: 201 }
         );
     } catch (error) {
