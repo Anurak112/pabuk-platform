@@ -1,4 +1,9 @@
-import NextAuth from "next-auth";
+/**
+ * NextAuth.js API Route Handler (v4)
+ * Supports Google, GitHub, and Credentials authentication
+ */
+
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
@@ -7,6 +12,7 @@ import GitHubProvider from "next-auth/providers/github";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+// Build providers array - always include Credentials for development
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const providers: any[] = [
     CredentialsProvider({
@@ -16,6 +22,7 @@ const providers: any[] = [
             password: { label: "Password", type: "password" },
         },
         async authorize(credentials) {
+            // For development - accept any email/password
             if (credentials?.email) {
                 return {
                     id: credentials.email as string,
@@ -30,6 +37,7 @@ const providers: any[] = [
     }),
 ];
 
+// Add Google if configured
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     providers.push(
         GoogleProvider({
@@ -39,6 +47,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     );
 }
 
+// Add GitHub if configured
 if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
     providers.push(
         GitHubProvider({
@@ -48,9 +57,11 @@ if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
     );
 }
 
-const authResult = NextAuth({
+export const authOptions: NextAuthOptions = {
     providers,
-    session: { strategy: "jwt" },
+    session: {
+        strategy: "jwt",
+    },
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
@@ -72,8 +83,8 @@ const authResult = NextAuth({
         signIn: "/auth/signin",
         error: "/auth/error",
     },
-});
+};
 
-const handlers = authResult?.handlers ?? { GET: () => new Response("Not configured", { status: 500 }), POST: () => new Response("Not configured", { status: 500 }) };
+const handler = NextAuth(authOptions);
 
-export const { GET, POST } = handlers;
+export { handler as GET, handler as POST };

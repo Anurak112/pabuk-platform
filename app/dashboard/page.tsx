@@ -4,6 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import { PointsCard, StreakIndicator, AchievementBadges, Leaderboard } from "@/components/points";
 
 export default function DashboardPage() {
     const { data: session, status } = useSession();
@@ -54,8 +55,8 @@ export default function DashboardPage() {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as typeof activeTab)}
                             className={`px-4 py-2 font-semibold rounded-lg transition-all ${activeTab === tab.id
-                                    ? "bg-yellow-400 text-slate-900"
-                                    : "text-slate-300 hover:text-white hover:bg-slate-800"
+                                ? "bg-yellow-400 text-slate-900"
+                                : "text-slate-300 hover:text-white hover:bg-slate-800"
                                 }`}
                         >
                             {tab.label}
@@ -66,23 +67,13 @@ export default function DashboardPage() {
                 {/* Overview Tab */}
                 {activeTab === "overview" && (
                     <div className="space-y-8">
-                        {/* Quick Stats */}
-                        <div className="grid md:grid-cols-4 gap-6">
-                            {[
-                                { label: "ผลงานทั้งหมด", value: "0", icon: "📝" },
-                                { label: "รอการตรวจสอบ", value: "0", icon: "⏳" },
-                                { label: "อนุมัติแล้ว", value: "0", icon: "✅" },
-                                { label: "คะแนนสะสม", value: "0", icon: "⭐" },
-                            ].map((stat, idx) => (
-                                <div
-                                    key={idx}
-                                    className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700"
-                                >
-                                    <div className="text-3xl mb-2">{stat.icon}</div>
-                                    <div className="text-3xl font-bold text-yellow-400">{stat.value}</div>
-                                    <div className="text-slate-400 text-sm">{stat.label}</div>
-                                </div>
-                            ))}
+                        {/* Points and Streak Row */}
+                        <div className="grid lg:grid-cols-2 gap-6">
+                            <PointsCard />
+                            <div className="space-y-4">
+                                <StreakIndicator />
+                                <AchievementBadges />
+                            </div>
                         </div>
 
                         {/* Quick Actions */}
@@ -121,6 +112,9 @@ export default function DashboardPage() {
                                 </Link>
                             </div>
                         </div>
+
+                        {/* Leaderboard */}
+                        <Leaderboard />
 
                         {/* Welcome Message */}
                         <div className="bg-gradient-to-r from-yellow-400/10 to-orange-400/10 border border-yellow-400/30 p-6 rounded-xl">
