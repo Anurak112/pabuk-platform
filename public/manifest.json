@@ -1,8 +1,8 @@
 {
-    "name": "Pabuk.ai - คลังข้อมูลโอเพนซอร์สไทยเพื่อ AI",
-    "short_name": "Pabuk.ai",
-    "description": "ระบบนิเวศข้อมูลวัฒนธรรมแบบกระจายศูนย์ที่ขับเคลื่อนโดยชุมชน สำหรับทั้ง 77 จังหวัดของประเทศไทย",
-    "start_url": "/dashboard",
+    "name": "Chaiyaphum Road Monitor - แจ้งถนนชำรุด",
+    "short_name": "Road Monitor",
+    "description": "ระบบรายงานถนนชำรุดจังหวัดชัยภูมิ ช่วยกันแจ้งปัญหาถนนพังจากรถบรรทุกอ้อย",
+    "start_url": "/",
     "scope": "/",
     "display": "standalone",
     "orientation": "portrait-primary",
@@ -11,7 +11,7 @@
     "dir": "ltr",
     "lang": "th",
     "categories": [
-        "education",
+        "utilities",
         "productivity",
         "social"
     ],
@@ -77,22 +77,22 @@
             "sizes": "1280x720",
             "type": "image/png",
             "form_factor": "wide",
-            "label": "Dashboard - ดูคะแนนและกิจกรรมของคุณ"
+            "label": "แผนที่ - ดูตำแหน่งถนนชำรุด"
         },
         {
             "src": "/screenshots/mobile-dashboard.png",
             "sizes": "750x1334",
             "type": "image/png",
             "form_factor": "narrow",
-            "label": "Dashboard บนมือถือ"
+            "label": "รายงานปัญหาบนมือถือ"
         }
     ],
     "shortcuts": [
         {
-            "name": "Submit Contribution",
-            "short_name": "Submit",
-            "description": "ส่งข้อมูลวัฒนธรรมใหม่",
-            "url": "/submit",
+            "name": "รายงานถนนพัง",
+            "short_name": "รายงาน",
+            "description": "แจ้งปัญหาถนนชำรุด",
+            "url": "/report",
             "icons": [
                 {
                     "src": "/icons/shortcut-submit.png",
@@ -101,10 +101,10 @@
             ]
         },
         {
-            "name": "View Catalogue",
-            "short_name": "Catalogue",
-            "description": "เรียกดูคลังข้อมูล",
-            "url": "/catalogue",
+            "name": "ดูแผนที่",
+            "short_name": "แผนที่",
+            "description": "ดูตำแหน่งถนนชำรุด",
+            "url": "/map",
             "icons": [
                 {
                     "src": "/icons/shortcut-catalogue.png",

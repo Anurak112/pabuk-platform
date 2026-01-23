@@ -69,13 +69,76 @@ export default function HomePage() {
         <div className="absolute bottom-1/4 right-10 w-40 h-40 bg-blue-400/10 rounded-full blur-3xl animate-pulse"></div>
       </section>
 
+      {/* Features Section - Including Road Monitor */}
+      <section className="py-20 bg-slate-800/50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-black mb-4">
+              ฟีเจอร์<span className="text-yellow-400">หลัก</span>
+            </h2>
+            <div className="w-24 h-1 bg-yellow-400 mx-auto rounded-full"></div>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Cultural Data Collection */}
+            <Link href="/submit" className="group p-8 bg-gradient-to-br from-blue-900/30 to-slate-800/30 backdrop-blur-sm rounded-2xl border-2 border-blue-400/30 hover:border-blue-400 transition-all duration-300 transform hover:scale-105">
+              <div className="text-5xl mb-4">📚</div>
+              <h3 className="text-xl font-bold mb-2 text-blue-400">ข้อมูลวัฒนธรรม</h3>
+              <p className="text-slate-400 mb-4">รวบรวมนิทาน ภาษาถิ่น เพลงพื้นบ้าน และประวัติศาสตร์ท้องถิ่น</p>
+              <span className="text-blue-400 group-hover:translate-x-2 transition-transform inline-block">
+                เริ่มส่งข้อมูล →
+              </span>
+            </Link>
+
+            {/* Road Monitor - THE NEW FEATURE */}
+            <Link href="/roads" className="group p-8 bg-gradient-to-br from-orange-900/30 to-red-900/30 backdrop-blur-sm rounded-2xl border-2 border-orange-400/30 hover:border-orange-400 transition-all duration-300 transform hover:scale-105">
+              <div className="text-5xl mb-4">🛣️</div>
+              <h3 className="text-xl font-bold mb-2 text-orange-400">Road Monitor</h3>
+              <p className="text-slate-400 mb-4">รายงานถนนชำรุดทั่วประเทศ ช่วยกันติดตามและแก้ปัญหา</p>
+              <span className="text-orange-400 group-hover:translate-x-2 transition-transform inline-block">
+                เปิด Road Monitor →
+              </span>
+            </Link>
+
+            {/* Catalogue */}
+            <Link href="/catalogue" className="group p-8 bg-gradient-to-br from-purple-900/30 to-slate-800/30 backdrop-blur-sm rounded-2xl border-2 border-purple-400/30 hover:border-purple-400 transition-all duration-300 transform hover:scale-105">
+              <div className="text-5xl mb-4">🗂️</div>
+              <h3 className="text-xl font-bold mb-2 text-purple-400">คลังข้อมูล</h3>
+              <p className="text-slate-400 mb-4">สำรวจข้อมูลวัฒนธรรมจากทั้ง 77 จังหวัดของไทย</p>
+              <span className="text-purple-400 group-hover:translate-x-2 transition-transform inline-block">
+                สำรวจคลัง →
+              </span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Road Monitor Highlight Section */}
+      <section className="py-20 bg-gradient-to-r from-orange-900/30 to-red-900/30">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className="inline-block px-4 py-2 bg-orange-500/20 border border-orange-400/30 rounded-full text-orange-300 font-semibold text-sm mb-6">
+            🆕 ฟีเจอร์ใหม่
+          </div>
+          <h2 className="text-4xl font-black text-white mb-6">
+            🛣️ Thailand Road Monitor
+          </h2>
+          <p className="text-xl text-orange-200 mb-8">
+            ช่วยกันรายงานถนนชำรุดทั่วประเทศ ครอบคลุม 77 จังหวัด<br />
+            ติดตามสถานะการซ่อมแซมแบบเรียลไทม์
+          </p>
+          <Link href="/roads" className="inline-flex items-center gap-2 px-8 py-4 bg-orange-500 text-white font-bold text-xl rounded-xl hover:bg-orange-400 transition-all transform hover:scale-105 shadow-lg">
+            🛣️ เปิด Road Monitor
+          </Link>
+        </div>
+      </section>
+
       {/* Stats Section */}
       <section className="py-16 bg-slate-800/50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-8 text-center">
             {[
               { value: "77", label: "จังหวัด", sublabel: "Provinces" },
-              { value: "3", label: "นำร่อง", sublabel: "Pilot Regions" },
+              { value: "6", label: "ภาค", sublabel: "Regions" },
               { value: "4", label: "ประเภทข้อมูล", sublabel: "Data Types" },
               { value: "∞", label: "โอกาส", sublabel: "Opportunities" },
             ].map((stat, idx) => (
@@ -83,59 +146,6 @@ export default function HomePage() {
                 <div className="text-5xl font-black text-yellow-400">{stat.value}</div>
                 <div className="text-xl font-bold text-white mt-2">{stat.label}</div>
                 <div className="text-blue-300 text-sm">{stat.sublabel}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Data Types Section */}
-      <section className="py-24 bg-gradient-to-b from-slate-900 to-slate-800">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-black mb-4">
-              สิ่งที่เรา<span className="text-yellow-400">รวบรวม</span>
-            </h2>
-            <div className="w-24 h-1 bg-yellow-400 mx-auto rounded-full"></div>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                icon: "📝",
-                title: "เนื้อหาข้อความ",
-                items: ["นิทานพื้นบ้าน", "สุภาษิต", "ประวัติศาสตร์ท้องถิ่น"],
-              },
-              {
-                icon: "🎵",
-                title: "คลิปเสียง",
-                items: ["ภาษาถิ่น", "เพลงพื้นบ้าน", "เสียงงานประเพณี"],
-              },
-              {
-                icon: "📸",
-                title: "สินทรัพย์ภาพ",
-                items: ["สถานที่สำคัญ", "อาหาร", "วัตถุทางวัฒนธรรม"],
-              },
-              {
-                icon: "🤖",
-                title: "ข้อมูลสังเคราะห์",
-                items: ["ภาพที่สร้างโดย AI", "ข้อความจำลอง"],
-              },
-            ].map((category, idx) => (
-              <div
-                key={idx}
-                className="bg-gradient-to-br from-blue-900/30 to-slate-800/30 backdrop-blur-sm p-6 rounded-2xl border-2 border-yellow-400/30 hover:border-yellow-400 transition-all duration-300 transform hover:scale-105"
-              >
-                <div className="text-5xl mb-4">{category.icon}</div>
-                <h3 className="text-xl font-bold mb-4 text-yellow-400">{category.title}</h3>
-                <ul className="space-y-2">
-                  {category.items.map((item, i) => (
-                    <li key={i} className="flex items-start">
-                      <span className="text-yellow-400 mr-2">•</span>
-                      <span className="text-blue-100">{item}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
             ))}
           </div>
@@ -155,8 +165,8 @@ export default function HomePage() {
             <Link href="/auth/register" className="px-10 py-4 bg-slate-900 text-white font-bold text-xl rounded-xl hover:bg-slate-800 transition-all">
               สมัครเป็นผู้ร่วมสร้าง
             </Link>
-            <Link href="/submit" className="px-10 py-4 bg-white text-slate-900 font-bold text-xl rounded-xl hover:bg-slate-100 transition-all">
-              ส่งข้อมูลแรกของคุณ
+            <Link href="/roads" className="px-10 py-4 bg-white text-slate-900 font-bold text-xl rounded-xl hover:bg-slate-100 transition-all">
+              🛣️ รายงานถนนพัง
             </Link>
           </div>
         </div>
