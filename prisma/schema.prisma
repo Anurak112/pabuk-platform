@@ -7,6 +7,8 @@ datasource db {
   provider = "postgresql"
 }
 
+
+
 // NextAuth.js required models
 model Account {
   id                String  @id @default(cuid())
